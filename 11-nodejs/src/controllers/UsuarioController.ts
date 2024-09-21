@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { usuarios } from "../usuarios";
+import { Usuario } from "../models/Usuario";
+import { AppDataSource } from "..";
 
 type UsuarioRequestDTO = {
   name: string;
@@ -40,14 +42,12 @@ export class UsuarioController {
         .json();
     }
 
-    const novoUsuario = {
-      ...dados,
-      id: Math.random().toString(),
-    };
+    const novoUsuario = new Usuario();
+    novoUsuario.nome = dados.name;
+    novoUsuario.email = dados.email;
+    const result = await AppDataSource.manager.save(novoUsuario);
 
-    usuarios.push(novoUsuario);
-
-    return res.status(201).send(novoUsuario).json();
+    return res.status(201).send(result).json();
   }
 
   async updateUsuario(req: Request, res: Response) {
