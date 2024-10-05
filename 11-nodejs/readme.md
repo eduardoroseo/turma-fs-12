@@ -12,7 +12,7 @@ Importe no arquivo principal da aplicação:
 import "reflect-metadata";
 ```
 
-Instalar o JWTÇ
+Instalar o JWT
 
 ```bash
 npm install jsonwebtoken

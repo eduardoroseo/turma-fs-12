@@ -4,10 +4,13 @@ import "reflect-metadata";
 import ormconfig from "../ormconfig.json";
 import { DataSource } from "typeorm";
 import { Usuario } from "./models/Usuario";
+import { authMiddleware } from "./middlewares/authMiddleware";
+import authRoutes from "./routes/authRoutes";
 
 const app: Express = express();
 app.use(express.json());
-app.use(usuarioRoutes);
+app.use(authRoutes);
+app.use(authMiddleware, usuarioRoutes);
 
 export const AppDataSource = new DataSource({
   type: "mysql",
