@@ -10,19 +10,29 @@ type UsuarioRequestDTO = {
 
 export class UsuarioController {
   async getUsuarios(req: Request, res: Response) {
-    return res.send(usuarios).json();
+    const userRepository = AppDataSource.getRepository(Usuario);
+
+    const allUsers = await userRepository.find();
+    /** Uso de query bruta */
+    // const allUsers = await AppDataSource.query('SELECT * FROM usuario');
+
+    return res.send(allUsers).json();
   }
 
   async getUsuario(req: Request, res: Response) {
     const { id } = req.params;
 
-    const resultado = usuarios.filter((user) => user.id == id);
+    const userRepository = AppDataSource.getRepository(Usuario);
 
-    if (resultado.length == 0) {
+    const resultado = await userRepository.findOneBy({
+      id: parseInt(id),
+    });
+
+    if (!resultado) {
       return res.status(404).send({ error: "Usuário não encontrado" }).json();
     }
 
-    return res.send(resultado[0]).json();
+    return res.send(resultado).json();
   }
 
   async createUsuario(req: Request, res: Response) {
@@ -68,19 +78,22 @@ export class UsuarioController {
         .json();
     }
 
-    const indiceUsuario = usuarios.findIndex((user) => user.id == id);
+    const userRepository = AppDataSource.getRepository(Usuario);
 
-    if (indiceUsuario < 0) {
+    const usuario = await userRepository.findOneBy({
+      id: parseInt(id),
+    });
+
+    if (!usuario) {
       return res.status(404).send({ error: "Usuário não encontrado" }).json();
     }
 
-    usuarios[indiceUsuario] = {
-      ...usuarios[indiceUsuario],
-      name: dados.name,
-      email: dados.email,
-    };
+    usuario.email = dados.email;
+    usuario.nome = dados.name;
 
-    res.send(usuarios[indiceUsuario]).json();
+    const result = await AppDataSource.manager.save(usuario);
+
+    res.send(result).json();
   }
 
   async deleteUsuario(req: Request, res: Response) {
