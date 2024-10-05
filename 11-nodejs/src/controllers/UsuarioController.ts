@@ -99,13 +99,17 @@ export class UsuarioController {
   async deleteUsuario(req: Request, res: Response) {
     const { id } = req.params;
 
-    const indiceUsuario = usuarios.findIndex((user) => user.id == id);
+    const userRepository = AppDataSource.getRepository(Usuario);
 
-    if (indiceUsuario < 0) {
+    const usuario = await userRepository.findOneBy({
+      id: parseInt(id),
+    });
+
+    if (!usuario) {
       return res.status(404).send({ error: "Usuário não encontrado" }).json();
     }
 
-    usuarios.splice(indiceUsuario, 1);
+    await userRepository.delete(usuario);
 
     res.send({ message: "Excluído com sucesso!" }).json();
   }
